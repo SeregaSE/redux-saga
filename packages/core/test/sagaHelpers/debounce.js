@@ -1,5 +1,5 @@
 import test from 'tape'
-import sagaMiddleware, {channel, END} from '../../src'
+import sagaMiddleware, { channel, END } from '../../src'
 import { createStore, applyMiddleware } from 'redux'
 import { debounce, cancel, take } from '../../src/effects'
 import { delay } from '../../src/internal/utils'
@@ -262,15 +262,15 @@ test('debounce: pattern END during race', assert => {
   }
 
   Promise.resolve()
-    .then(() => store.dispatch({type: 'ACTION'}))
+    .then(() => store.dispatch({ type: 'ACTION' }))
     .then(() => store.dispatch(END))
     .then(() => delay(largeDelayMs))
 
-    .then(() => store.dispatch({type: 'ACTION'}))
+    .then(() => store.dispatch({ type: 'ACTION' }))
     .then(() => delay(largeDelayMs))
     .then(() => {
+      assert.equal(called, 0, 'should interrupt race on END')
       assert.equal(task.isRunning(), false, 'should finish debounce task on END')
-      assert.equal(called, 1, 'should not call function on already finished channel')
       assert.end()
     })
     .catch(err => assert.fail(err))
