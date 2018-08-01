@@ -39,6 +39,9 @@
   },
   "homepage": "https://redux-saga.js.org/",
   "dependencies": {
+    "gitbook-plugin-favicon": "0.0.2",
+    "gitbook-plugin-github": "^2.0.0",
+    "gitbook-plugin-prism": "^1.0.0",
     "redux": ">=0.10 <5"
   },
   "devDependencies": {

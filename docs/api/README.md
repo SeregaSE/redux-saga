@@ -11,6 +11,7 @@
   * [`takeLeading(pattern, saga, ..args)`](#takeleadingpattern-saga-args)
   * [`takeLeading(channel, saga, ..args)`](#takeleadingchannel-saga-args)
   * [`throttle(ms, pattern, saga, ..args)`](#throttlems-pattern-saga-args)
+  * [`retry(maxTries, delay, fn, ...args)`](#retrymaxtries-delay-fn-args)
 * [`Effect creators`](#effect-creators)
   * [`take(pattern)`](#takepattern)
   * [`take.maybe(pattern)`](#takemaybepattern)
@@ -364,6 +365,36 @@ const throttle = (ms, pattern, task, ...args) => fork(function*() {
   }
 })
 
+```
+
+### `retry(maxTries, delay, fn, ...args)`
+
+Creates an Effect description that instructs the middleware to call the function `fn` with `args` as arguments while `fn` does not return the result or `fn` calls count less then `maxTries`. `Delay` instructs `retry` to make a pause between `fn` calls.
+
+- `maxTries: Number` - maximum calls count.
+ 
+- `delay: Number` - length of a time window in milliseconds between `fn` calls.
+
+- `fn: Function` - A Generator function, or normal function which either returns a Promise as result, or any other value.
+
+- `args: Array<any>` - An array of values to be passed as arguments to `fn`
+
+#### Example
+
+In the following example, we create a basic task `addCommentSaga`. We use `retry` to try fetch our API 2 times with 10 second interval. If `addComment` fails first time then `retry` will call `addComment` one more time. Just imagine that our API could be overloaded and we want to retry create comment request later.
+
+```javascript
+import { put, takeEvery, retry } from 'redux-saga/effects'
+import { addComment } from '../api';
+
+function* addCommentSaga(message) {
+  try {
+    const data = yield retry(2, 1000 * 10, addComment, message)
+    yield put({ type: 'COMMENT_ADD_SUCCESS', payload: data })
+  } catch(error) {
+    yield put({ type: 'COMMENT_ADD_FAIL', payload: { error } })
+  }
+}
 ```
 
 ## Effect creators
