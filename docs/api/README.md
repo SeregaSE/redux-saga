@@ -910,21 +910,25 @@ Creates an Effect description that instructs the middleware to call the function
 
 #### Example
 
-In the following example, we create a basic task `addCommentSaga`. We use `retry` to try fetch our API 2 times with 10 second interval. If `addComment` fails first time then `retry` will call `addComment` one more time. Just imagine that our API could be overloaded and we want to retry create comment request later.
+In the following example, we create a basic task `retrySaga`. We use `retry` to try fetch our API 3 times with 10 second interval. If `request` fails first time then `retry` will call `request` one more time while calls count less than 3.
 
 ```javascript
-import { put, takeEvery, retry } from 'redux-saga/effects'
-import { addComment } from '../api';
+import { put, retry } from 'redux-saga/effects'
+import { request } from 'some-api';
 
-function* addCommentSaga(message) {
+function* retrySaga(data) {
   try {
-    const data = yield retry(2, 1000 * 10, addComment, message)
-    yield put({ type: 'COMMENT_ADD_SUCCESS', payload: data })
+    const response = yield retry(3, 1000 * 10, request, data)
+    yield put({ type: 'REQUEST_SUCCESS', payload: response })
   } catch(error) {
-    yield put({ type: 'COMMENT_ADD_FAIL', payload: { error } })
+    yield put({ type: 'REQUEST_FAIL', payload: { error } })
   }
 }
 ```
+
+#### Notes
+
+`retry` is a high-level API built using `delay` and `call`. [Here is how the helper could be implemented using the low-level Effects](/docs/recipes/#retrying-xhr-calls)
 
 ## Effect combinators
 
