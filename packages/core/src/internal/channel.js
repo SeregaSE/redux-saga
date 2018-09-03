@@ -1,5 +1,6 @@
-import { CHANNEL_END_TYPE, MATCH, MULTICAST, SAGA_ACTION } from './symbols'
-import { is, check, remove, once, internalErr } from './utils'
+import * as is from '@redux-saga/is'
+import { CHANNEL_END_TYPE, MATCH, MULTICAST, SAGA_ACTION } from '@redux-saga/symbols'
+import { check, remove, once, internalErr } from './utils'
 import * as buffers from './buffers'
 import { asap } from './scheduler'
 import * as matchers from './matcher'
@@ -156,10 +157,9 @@ export function multicastChannel() {
     closed = true
     const takers = (currentTakers = nextTakers)
 
-    for (let i = 0; i < takers.length; i++) {
-      const taker = takers[i]
+    takers.forEach(taker => {
       taker(END)
-    }
+    })
 
     nextTakers = []
   }
@@ -183,13 +183,12 @@ export function multicastChannel() {
       }
 
       const takers = (currentTakers = nextTakers)
-      for (let i = 0; i < takers.length; i++) {
-        const taker = takers[i]
+      takers.forEach(taker => {
         if (taker[MATCH](input)) {
           taker.cancel()
           taker(input)
         }
-      }
+      })
     },
     take(cb, matcher = matchers.wildcard) {
       if (closed) {
